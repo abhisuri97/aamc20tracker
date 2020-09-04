@@ -1,0 +1,546 @@
+<html>
+  <head>
+    <title>AAMC Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Primary Meta Tags -->
+    <title>AAMC Tracker</title>
+    <meta name="title" content="AAMC Tracker">
+    <meta name="description" content="Tiny website to input and track transcript and application receive & verification times for the AMCAS  2020-21 application cycle.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://aamc20tracker.herokuapp.com/">
+    <meta property="og:title" content="AAMC Tracker">
+    <meta property="og:description" content="Tiny website to input and track transcript and application receive & verification times for the AMCAS  2020-21 application cycle.">
+    <meta property="og:image" content="https://aamc20tracker.herokuapp.com/static/thumb.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://aamc20tracker.herokuapp.com/">
+    <meta property="twitter:title" content="AAMC Tracker">
+    <meta property="twitter:description" content="Tiny website to input and track transcript and application receive & verification times for the AMCAS  2020-21 application cycle.">
+    <meta property="twitter:image" content="https://aamc20tracker.herokuapp.com/static/thumb.png">
+    <!--JQUERY-->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>  
+    <!--Moment-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment-with-locales.min.js" integrity="sha256-4HOrwHz9ACPZBxAav7mYYlbeMiAL0h6+lZ36cLNpR+E=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.31/moment-timezone.min.js" integrity="sha512-GqWOXT1UPIvzojfXEPf2ByPu4S0iwX0SfFfZ985fePNpTJPuiWKn47mXd0iyfcpcjcmM/HIRtvrd5TsR87A0Zg==" crossorigin="anonymous"></script>
+    <!--BOOTSTRAP JS-->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <!--flatPicker-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!--BOOTSTRAP CSS-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!--ChartJS-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-169291320-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-169291320-1');
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>AAMC Tracker</h1>
+      <div class="row">
+        <div class="col-md-4">
+          <form>
+            <div class="form-group">
+              <label for="username">Step 1: Put down your username (reddit or sdn)</label>
+              <input type="text" name="username" id="username" class="form-control" placeholder="enter username">
+              <small class="form-text text-muted">This won't be shared unless you want it to be</small>
+            </div>
+            <div class="form-group">
+              <label for="radio">Select where this username is from (helps me locate if you've made previous entries on this site)</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="typeRadio" id="redditRadio" value="reddit">
+                <label class="form-check-label" for="reddit">
+                  Reddit
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="typeRadio" id="sdnRadio" value="sdn">
+                <label class="form-check-label" for="sdn">
+                  SDN
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="typeRadio" id="otherRadio" value="other">
+                <label class="form-check-label" for="other">
+                  Other (note: uniqueness not guaranteed in this case)
+                </label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-warning" id="find">Step 2: Add/Find yourself in Tracker</button><br/>
+            <small>Explanation: This will look up any prior transcript entries you've made and display below or add you to the db so you can update your status once you get an update later</small>
+            <hr/>
+            
+            <div class="transcriptStatuses">
+            </div>
+            <div class="applicationStatus">
+            </div>
+          </form>
+        </div>
+        <div class="col-md-8">
+          <h2>Time to Verification <span id='appn'></span></h2>
+          <div class="chart-container" style="position: relative; height:60vh">
+            <canvas id="application"></canvas><br/>
+          </div>
+  <script>
+  </script>
+  <small>Note: Last time this app pulled the AMCAS twitter was <span id="lastPullDate"></span>. Next scheduled pull will happen 1 hour after this. I look for the phrase "processing applications that reached" and grab the date from that. Let me know if this is broken (just make a post on reddit). Also, the 2019-20 data is "played out" on the current application timeline and dates are shifted accordingly.</small>
+          <br/>
+          <br/>
+          <h2>Transcript Receive Delays <span id='tsn'></span></h2>
+          <canvas id="transcript" width="200" height="100"></canvas><br/>
+          <h4>Data including non-received transcripts</h4>
+          <table class="table">
+            <thead>
+              <th style="width: 28%">Date</th>
+              <th style="width: 18%">EVendor</th>
+              <th style="width: 18%">Email</th>
+              <th style="width: 18%">Fax</th>
+              <th style="width: 18%">Mail</th>
+            </thead>
+          </table>
+          <div class="scroll" style="max-height: 200px; overflow-y: scroll">
+            <table class="table" id="tbody">
+            </table>
+          </div>
+          <small>Numerator = Number received, denominator = total sent. Red shade = < 50% received; Green shade = &#8805; 50% received; Gray = no data</small>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+      $('body').on('click', '#clear', function(e) {
+        e.preventDefault();
+        var fp = $(this).parent().find('.flatpickr')[0]._flatpickr;
+        fp.clear();
+      })
+      // TODO: Search and then add in the html for transcripts
+      var o = moment(<%= lastPull %>).tz('America/New_York').format("MM-DD-YYYY hh:mm A");
+      $('#lastPullDate').text(o + ' EST');
+      var radioCount = 0;
+      function makeHtml(cnt, name, type) {
+        return ` 
+            <div class="transcriptStatus">
+              <p>Please put down all times in YOUR time zone</p>
+              <div class="form-group" id="tsEntry">
+                <div class="form-group">
+                  <label for="transcriptname">Transcript name/ID (must be unique among your transcripts)</label>
+                  <input type="text" class="form-control" id="transcriptID" placeholder="enter transcript name/ID" 
+                    value="${name}">
+                  <small class="form-text text-muted">This won't be shared. Just helps you refer to it</small>
+                </div>
+                <div class="form-group">
+                  <label for="transcriptname">Transcript sent via what format?</label>
+                  <div class="form-check">
+          <input class="form-check-input" type="radio" name="sendRadio_${cnt}" id="evendor" value="evendor" 
+            ${type == 'evendor' ? 'checked' : ''}
+          >
+                    <label class="form-check-label" for="evendor">
+                      Electronic Vendor
+                    </label>
+                  </div>
+                  <div class="form-check">
+        <input class="form-check-input" type="radio" name="sendRadio_${cnt}" id="emailV" value="email"
+            ${type == 'email' ? 'checked' : ''}
+        >
+                    <label class="form-check-label" for="email">
+                      Email
+                    </label>
+                  </div>
+                  <div class="form-check">
+        <input class="form-check-input" type="radio" name="sendRadio_${cnt}" id="fax" value="fax"
+            ${type == 'fax' ? 'checked' : ''}
+        >
+                    <label class="form-check-label" for="fax">
+                      Fax
+                    </label>
+                  </div>
+                  <div class="form-check">
+        <input class="form-check-input" type="radio" name="sendRadio_${cnt}" id="mail" value="mail" 
+            ${type == 'mail' ? 'checked' : ''}
+        >
+
+                    <label class="form-check-label" for="mail">
+                      Mail
+                    </label>
+                  </div>
+                </div>
+                <br/>
+                <div>
+                  <label for="tstime">When did you send this transcript to AAMC?</label>
+          <input type='text' id="sendTime" class="flatpickr form-control" data-input>
+                  <a href="#" id="clear">Clear time</a>
+                </div>
+                <br/>
+                <div>
+                  <label for="tstime">When did AAMC mark this as received (leave blank if not received)?</label>
+          <input type='text' id="receiveTime" class="flatpickr form-control" data-input>
+                  <a href="#" id="clear">Clear time</a>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-success addTranscript">Add Another Transcript</button>
+              <button type="submit" class="btn btn-danger deleteTranscript">Delete Transcript</button>
+              <br/>
+              <small>Note: you can save at the end of this form</small>
+            </div>`;
+
+      }
+      function makeHtmlVerif() {
+        return `
+            <hr/>
+            <p>Please put down all times in YOUR time zone</p>
+            <div class="form-group">
+              <div>
+                <label for="tstime">When did you submit your application (leave blank if not submitted)?</label>
+          <input type='text' class="flatpickr form-control" data-input id="submitTime">
+                <a href="#" id="clear">Clear time</a>
+              </div>
+              <br/>
+              <div>
+                <label for="tstime">When was your application marked as verified (leave blank if not verified)?</label>
+          <input type='text' class="flatpickr form-control" data-input id="verificationTime">
+                <a href="#" id="clear">Clear time</a>
+              </div>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary" id="submitEverything">Step 3: Submit/Update transcript entries</button>
+            </div>
+        `
+      }
+      function addTranscript(name="", type="", sent=null, received=null) {
+        radioCount += 1
+        var i = $(makeHtml(radioCount, name, type));
+        $(i).find('.flatpickr').each( function() {
+          if ($(this).attr('id') == 'sendTime') {
+            if (!sent) {
+              flatpickr($(this), { enableTime: true, dateFormat: "m-d-Y H:i" });
+            } else {
+              flatpickr($(this), { enableTime: true, dateFormat: "m-d-Y H:i", defaultDate: sent*1000 })
+            }
+          }
+          if ($(this).attr('id') == 'receiveTime') {
+            if (!received) {
+              flatpickr($(this), { enableTime: true, dateFormat: "m-d-Y H:i" });
+            } else {
+              flatpickr($(this), { enableTime: true, dateFormat: "m-d-Y H:i", defaultDate: received*1000 })
+            }
+          }
+        })
+        $('.transcriptStatuses').append(i);
+      }
+      function addVerif(submit=null, verified=null) {
+        var i = $(makeHtmlVerif());
+        $(i).find('.flatpickr').each( function() {
+          if ($(this).attr('id') == 'submitTime') {
+            if (!submit) {
+              flatpickr($(this), { enableTime: true, dateFormat: "m-d-Y H:i" });
+            } else {
+              flatpickr($(this), { enableTime: true, dateFormat: "m-d-Y H:i", defaultDate: submit*1000 })
+            }
+          }
+          if ($(this).attr('id') == 'verificationTime') {
+            if (!verified) {
+              flatpickr($(this), { enableTime: true, dateFormat: "m-d-Y H:i" });
+            } else {
+              flatpickr($(this), { enableTime: true, dateFormat: "m-d-Y H:i", defaultDate: verified*1000 })
+            }
+          }
+        })
+        $('.applicationStatus').append(i);
+      }
+      // TODO: Add/delete transcripts. Make sure at min one submitted
+      $('body').on('click', '.addTranscript', function (e) {
+        e.preventDefault();
+        addTranscript();
+      });
+      $('body').on('click', '.deleteTranscript', function (e) { 
+        e.preventDefault();
+        if ($('body').find('.deleteTranscript').length == 1) {
+          alert('Operation not permitted. You must have at least 1 transcript');
+          return;
+        } else {
+          $(this).parent().remove(); 
+        }
+      })
+      // TODO: Format submission
+      // 1. GET DATES
+      // 2. Fmt into object
+      // 3. Check unique transcript IDs
+      // 4. Report errors (alert?)
+      // get date by doing Date.parse(...._flatpickr.selectedDates[0])/1000
+      $('body').on('click', '#submitEverything', function(e) {
+        e.preventDefault();
+        // obj format 
+        // { username: username_acct, transcripts: [{ name, type, sent, received }...], submit: ...., verif: .... }
+        var sendInfo = {}
+        sendInfo['username'] = $('#username').val() + '_' + $('input[name="typeRadio"]:checked').val()
+        var transcripts = []
+        $('.transcriptStatus').each(function() {
+          var self = this;
+          var obj = {}
+          obj['name'] = $(self).find('#transcriptID').val();
+          obj['type'] = $(self).find('input[name^="sendRadio_"]:checked').val();
+          $(self).find('.flatpickr').each(function() {
+            
+            if ($(this).attr('id') == 'sendTime') {
+              obj['sent'] = Date.parse($(this)[0]._flatpickr.selectedDates[0])/1000;
+            } 
+            if ($(this).attr('id') == 'receiveTime') {
+              obj['received'] = Date.parse($(this)[0]._flatpickr.selectedDates[0])/1000;
+            }
+          })
+          transcripts.push(obj);
+        })
+        sendInfo['transcripts'] = transcripts;
+        sendInfo['submit'] = Date.parse($('#submitTime')[0]._flatpickr.selectedDates[0])/1000;
+        sendInfo['verified'] = Date.parse($('#verificationTime')[0]._flatpickr.selectedDates[0])/1000;
+        console.log(sendInfo);
+        $.ajax({
+          type: 'POST',
+          url: '/updateInfo',
+          data: JSON.stringify(sendInfo),
+          success: function() {
+            alert('successfully updated/added data');
+          }, 
+        })
+      })
+
+
+
+      var userInfo = {}
+      $(function () {
+        $('#find').on('click', function(e) {
+          e.preventDefault();
+          $('.transcriptStatuses').empty();
+          $('.applicationStatus').empty();
+          $.ajax({
+            type:'GET',
+            url: '/findUser/' + $('#username').val() + '_' + 
+                  $('input[name="typeRadio"]:checked').val(),
+            success: function(r) {
+              obj = JSON.parse(r);
+              if (obj.transcripts.length == 0) {
+                addTranscript();
+                addVerif();
+              }
+              else { 
+                userInfo = obj
+                userInfo.transcripts.forEach(i => {
+                  addTranscript(i.name, i.type, i.sent, i.received);
+                })
+                addVerif(userInfo.submit, userInfo.verified);
+              }
+            }
+          })
+        })
+    });
+    $.ajax({
+           type:'GET',
+           url: '/getData',
+           success: function(r) {
+             if (r == 'error') { alert('There was an error') }
+             processAndDisplay(JSON.parse(r))
+             processAndDisplayApp(JSON.parse(r))
+           }
+    })
+
+    // chart js stuff
+
+    var color = Chart.helpers.color;
+    window.chartColors = {
+      red: 'rgb(255, 99, 132)',
+      orange: 'rgb(255, 159, 64)',
+      yellow: 'rgb(255, 205, 86)',
+      green: 'rgb(75, 192, 192)',
+      blue: 'rgb(54, 162, 235)',
+      purple: 'rgb(153, 102, 255)',
+      grey: 'rgb(201, 203, 207)'
+    };  
+    function processAndDisplayApp(data) {
+      console.log(data.applications);
+      verified = data.applications.filter(i => i.verified && i.verified * 1000 < Date.now() 
+                                      && !i.oldData && !i.official && i.verified > i.submit)
+      $('#appn').text('(n=' + verified.length + ' applications)' )
+      vdata = verified.map(i => { return {
+        t: (i.submit)*1000,
+        y: (i.verified - i.submit)/86400
+      }})
+      
+      v2019data = data.applications.filter(i => i.verified && i.oldData)
+      v2019data = v2019data.map(i => { return {
+        t: (i.submit - 1590672600 + 1590672600)*1000,
+        y: (i.verified - i.submit)/86400
+      }})
+
+      cdata = data.applications.filter(i => i.verified && i.official).sort((a, b) => b.submit - a.submit)
+      cdata = cdata.map(i => { return {
+        t: (i.submit)*1000,
+        y: (i.verified - i.submit)/86400,
+      }})
+
+      var scatterChartData = {
+        datasets: [{
+          label: 'AMCAS Official Statuses (Twitter; current cycle)',
+          borderColor: window.chartColors.red,
+          backgroundColor: color(window.chartColors.red).alpha(0.2).rgbString(),
+          data: cdata,
+          type: 'line',
+          fill: false,
+          cubicInterpolationMode: 'monotone'
+        },
+        {
+          label: 'Verification Time (User submitted; current cycle)',
+          borderColor: window.chartColors.blue,
+          backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
+          data: vdata
+        }, {
+          label: 'Verification Time (2019-20 cycle)',
+          borderColor: color(window.chartColors.orange).alpha(0.2).rgbString(),
+          backgroundColor: color(window.chartColors.orange).alpha(0.2).rgbString(),
+          data: v2019data
+        }]
+      };
+
+      var ctx = document.getElementById('application').getContext('2d');
+      window.myScatter = Chart.Scatter(ctx, {
+        data: scatterChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          title: {
+            display: true,
+            text: 'Days to verification vs Submission Day (since May 28 930AM ET)'
+          },
+          scales: {
+            xAxes: [{
+                scaleLabel: {
+                  labelString: 'Submission Day',
+                  display: true
+                },
+                type: 'time',
+                time: {
+                    unit: 'week'
+                }
+            }],
+            yAxes: [{
+                scaleLabel: {
+                  labelString: '# of days to verification post submission',
+                  display: true
+                },
+            }]
+          }
+        }
+      });
+    }
+    function detStyle(received,total) {
+      if (total == 0) { 
+        return `background-color: #dfe6e9; color: black`
+      }
+      if (received/total < 0.50) {
+        return `width: 18%; background-color: rgba(220, 53, 29, ${Math.max((0.50-(received/total))/0.50, 0.25)}); color: black`
+      } else {
+        return `width: 18%; background-color: rgba(40, 167, 69, ${Math.max((((received/total))/0.50) - 0.50, 0.25)}); color: black`
+      }
+    }
+    function processAndDisplay(data) {
+      // { applications: [{submit, verified}], transcripts: [{sent, received, type}]}
+      // transcripts
+      // group by days
+      var tsdates = [];
+      tscountTotal = 0;
+      tscountReceived = 0;
+      data.transcripts = data.transcripts.filter(i => i.sent)
+      $('#tsn').text('(n=' + data.transcripts.length + ' transcripts)' )
+      data.transcripts = data.transcripts.sort((a, b) => a.sent - b.sent)
+      var minDate = Infinity;
+      data.transcripts.forEach(i => {
+        d = new Date(i.sent*1000); 
+        if (d < minDate) minDate = d; 
+        str = `${d.getMonth()+1}-${d.getDate()}-${d.getYear()+1900}`
+        console.log(i.sent);
+        datestrsonly = tsdates.map(l => l.dateStr)
+        if (!datestrsonly.includes(str)) tsdates.push({ dateStr: str, types: [
+          {name:'evendor', total: 0, received: 0},
+          {name:'email', total: 0, received: 0},
+          {name:'fax', total:  0, received: 0},
+          {name:'mail', total: 0, received: 0}
+        ]});
+        tsdates.forEach(k => {
+          if (k.dateStr == str) {
+            k.types.forEach(j => {
+              if (j.name == i.type) {
+                j.total += 1;
+                if (i.received && i.received * 1000 < Date.now()) j.received += 1;
+              }
+            })
+          }
+        })
+      })
+      var labels = ['evendor', 'email', 'fax', 'mail']
+      var colorLabels = ['red', 'blue', 'green', 'orange']
+      var datasets = [];
+      labels.forEach((i, idx) => datasets.push({ 
+          label: i, 
+          backgroundColor: color(window.chartColors[colorLabels[idx]]).alpha(0.8).rgbString(),
+          data: []
+      }))
+      var receivedCount = 0;
+      data.transcripts.forEach(i => {
+        if (i.received && i.received * 1000 < Date.now()) {
+          if (labels.indexOf(i.type) > -1) {
+            receivedCount += 1
+            datasets[labels.indexOf(i.type)].data.push({
+              x: (i.sent - 1588204800)/86400,
+              y: (i.received - i.sent)/86400
+            })
+          }
+        }
+
+      })
+      var ctx = document.getElementById('transcript').getContext('2d');
+      window.myScatter = Chart.Scatter(ctx, {
+        data: {datasets},
+          options: {
+            title: {
+              display: true,
+              text: 'Days to Receival vs Sent Day (since April 30 2020 12AM ET, n=' + receivedCount + ' total received as of today)'
+            },
+            scales: {
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: '# of days post sending to be marked as received'
+                }
+              }],
+              xAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'days since april 30 12 AM ET'
+                }
+              }]
+            } 
+          }
+      });
+      $('#tbody').empty();
+      tsdates.forEach(i => {
+        $('#tbody').append(`
+        <tr>
+          <td style="width: 28%">${i.dateStr}</td>
+          <td style="${detStyle(i.types[0].received,i.types[0].total)}">${i.types[0].received}/${i.types[0].total}</td>
+          <td style="${detStyle(i.types[1].received,i.types[1].total)}">${i.types[1].received}/${i.types[1].total}</td>
+          <td style="${detStyle(i.types[2].received,i.types[2].total)}">${i.types[2].received}/${i.types[2].total}</td>
+          <td style="${detStyle(i.types[3].received,i.types[3].total)}">${i.types[3].received}/${i.types[3].total}</td>
+        </tr>`);
+      })
+    }
+  </script>
+</html>
